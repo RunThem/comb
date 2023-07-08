@@ -98,27 +98,27 @@ static ast_t* comb_and(input_t* in, comb_t* comb) {
   ast_t* _ast  = nullptr;
   size_t __idx = in->idx;
 
-  ast = ast_new();
-
   _ast = parse(in, *vec_at(&comb->forward, 0));
-  if (_ast != nullptr) {
-    ast_add(&ast, _ast);
-  }
+  u_goto_if(_ast == nullptr);
+
+  ast = ast_new();
+  ast_add(&ast, _ast);
 
   for (size_t i = 1; i < comb->forward->len; i++) {
     auto it = vec_at(&comb->forward, i);
     _ast    = parse(in, *it);
 
-    if (_ast == nullptr) {
-      /* FIX: free ast */
-      in->idx = __idx;
-      return nullptr;
-    }
+    u_goto_if(_ast == nullptr);
 
     ast_add(&ast, _ast);
   }
 
   return ast;
+
+err:
+  /* FIX: free ast */
+  in->idx = __idx;
+  return nullptr;
 }
 
 ast_t* parse(input_t* in, comb_t* comb) {
