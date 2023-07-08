@@ -18,7 +18,7 @@ typedef enum {
 } tag_t;
 
 typedef struct __ast_t {
-  vec(struct __ast_t*) forward;
+  vec(struct __ast_t*) children;
   str_t match;
 } ast_t;
 
@@ -28,8 +28,8 @@ typedef struct __comb_t {
     /* match */
     str_t match;
 
-    /* forward */
-    vec(struct __comb_t*) forward;
+    /* children */
+    vec(struct __comb_t*) children;
   };
 } comb_t;
 

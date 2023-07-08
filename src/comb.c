@@ -15,11 +15,11 @@ static ast_t* ast_new() {
 }
 
 static void ast_add(ast_t** ast, ast_t* a) {
-  if (_(ast)->forward == nullptr) {
-    vec_init(&_(ast)->forward);
+  if (_(ast)->children == nullptr) {
+    vec_init(&_(ast)->children);
   }
 
-  vec_push_b(&_(ast)->forward, a);
+  vec_push_b(&_(ast)->children, a);
 }
 
 static void __ast_dump(int level, ast_t* ast) {
@@ -27,12 +27,12 @@ static void __ast_dump(int level, ast_t* ast) {
 
   u_ret_no_if(ast == nullptr);
 
-  if (ast->forward == nullptr) {
+  if (ast->children == nullptr) {
     memset(space, ' ', sizeof(space));
     space[(level - 1) * 4] = '\0';
     printf("%s'%s'\n", space, ast->match->c_str);
   } else {
-    vec_for(&ast->forward, it) {
+    vec_for(&ast->children, it) {
       __ast_dump(level + 1, *it);
     }
   }
@@ -55,7 +55,7 @@ void __comb_dump(int level, comb_t* comb) {
   } else {
     printf("%s(%d)\n", space, comb->tag);
 
-    vec_for(&comb->forward, it) {
+    vec_for(&comb->children, it) {
       __comb_dump(level + 1, *it);
     }
   }
@@ -83,7 +83,7 @@ static ast_t* comb_or(input_t* in, comb_t* comb) {
   ast_t* ast   = nullptr;
   size_t __idx = in->idx;
 
-  vec_for(&comb->forward, it) {
+  vec_for(&comb->children, it) {
     in->idx = __idx;
     ast     = parse(in, *it);
     u_ret_if(ast != nullptr, ast);
@@ -98,14 +98,14 @@ static ast_t* comb_and(input_t* in, comb_t* comb) {
   ast_t* _ast  = nullptr;
   size_t __idx = in->idx;
 
-  _ast = parse(in, *vec_at(&comb->forward, 0));
+  _ast = parse(in, *vec_at(&comb->children, 0));
   u_goto_if(_ast == nullptr);
 
   ast = ast_new();
   ast_add(&ast, _ast);
 
-  for (size_t i = 1; i < comb->forward->len; i++) {
-    auto it = vec_at(&comb->forward, i);
+  for (size_t i = 1; i < comb->children->len; i++) {
+    auto it = vec_at(&comb->children, i);
     _ast    = parse(in, *it);
 
     u_goto_if(_ast == nullptr);
@@ -145,7 +145,7 @@ static ast_t* comb_maybe(input_t* in, comb_t* comb) {
     }
 
     __idx = in->idx;
-    vec_for(&_ast->forward, it) {
+    vec_for(&_ast->children, it) {
       ast_add(&ast, *it);
     }
   }
@@ -187,10 +187,10 @@ comb_t* Comb(tag_t tag, size_t cnt, ...) {
   va_start(ap, cnt);
 
   c->tag = tag;
-  vec_init(&c->forward, cnt);
+  vec_init(&c->children, cnt);
 
   for (size_t i = 0; i < cnt; i++) {
-    vec_push_b(&c->forward, va_arg(ap, comb_t*));
+    vec_push_b(&c->children, va_arg(ap, comb_t*));
   }
 
   va_end(ap);
