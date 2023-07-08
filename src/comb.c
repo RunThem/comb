@@ -68,7 +68,7 @@ void comb_dump(comb_t* comb) {
 static ast_t* comb_match(input_t* in, comb_t* comb) {
   ast_t* ast = nullptr;
 
-  if (0 != str_comp(&comb->match, &in->input->c_str[in->idx])) {
+  if (0 != strncmp(&in->input->c_str[in->idx], comb->match->c_str, comb->match->len)) {
     return nullptr;
   }
 
@@ -121,6 +121,39 @@ err:
   return nullptr;
 }
 
+static ast_t* comb_maybe(input_t* in, comb_t* comb) {
+  tag_t tag    = comb->tag;
+  ast_t* ast   = nullptr;
+  ast_t* _ast  = nullptr;
+  size_t __idx = in->idx;
+
+  comb->tag = C_AND;
+  ast       = parse(in, comb);
+  if (ast == nullptr) {
+    comb->tag = tag;
+    in->idx   = __idx;
+
+    return nullptr;
+  }
+
+  while (true) {
+    _ast = parse(in, comb);
+    if (_ast == nullptr) {
+      /* free _ast */
+      in->idx = __idx;
+      break;
+    }
+
+    __idx = in->idx;
+    vec_for(&_ast->forward, it) {
+      ast_add(&ast, *it);
+    }
+  }
+
+  comb->tag = tag;
+  return ast;
+}
+
 ast_t* parse(input_t* in, comb_t* comb) {
   switch (comb->tag) {
     case C_MATCH:
@@ -129,6 +162,8 @@ ast_t* parse(input_t* in, comb_t* comb) {
       return comb_or(in, comb);
     case C_AND:
       return comb_and(in, comb);
+    case C_MAYBE:
+      return comb_maybe(in, comb);
     default:
       break;
   }

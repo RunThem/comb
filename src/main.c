@@ -8,14 +8,11 @@ int main(int argc, const char** argv) {
 
   input_t in = {
       .idx   = 0,
-      .input = str_new("hello world;!"),
+      .input = str_new("-=-=-=---==--=-="),
   };
 
-  auto hello = P("hello");
-  auto world = P("world");
-
-  auto expr = A(hello, P(" "), world, A(P(";"), P("!")));
-  auto forw = A(hello, world, expr, P(";"));
+  auto op   = O(P("-"), P("="));
+  auto expr = M(op);
 
   comb_dump(expr);
 
