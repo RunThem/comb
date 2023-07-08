@@ -18,8 +18,7 @@ typedef enum {
 } tag_t;
 
 typedef struct __ast_t {
-  struct __ast_t* l;
-  struct __ast_t* r;
+  vec(struct __ast_t*) forward;
   str_t match;
 } ast_t;
 
@@ -34,8 +33,8 @@ typedef struct __comb_t {
   };
 } comb_t;
 
-void ast_dump(int level, ast_t* ast);
-void comb_dump(int level, comb_t* comb);
+void ast_dump(ast_t* ast);
+void comb_dump(comb_t* comb);
 
 comb_t* Match(c_str match);
 comb_t* Comb(tag_t tag, size_t cnt, ...);
@@ -52,3 +51,5 @@ comb_t* Comb(tag_t tag, size_t cnt, ...);
 #define A(arg...) Comb(C_AND, va_size(arg), arg)
 #define L(arg...) Comb(C_LOOP, va_size(arg), arg)
 #define M(arg...) Comb(C_MAYBE, va_size(arg), arg)
+
+ast_t* parse(input_t* in, comb_t* comb);
