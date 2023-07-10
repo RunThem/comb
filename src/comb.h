@@ -6,6 +6,8 @@
 typedef struct {
   str_t input;
   size_t idx;
+
+  bool err;
 } input_t;
 
 typedef enum {
@@ -13,8 +15,8 @@ typedef enum {
   C_COMB,
   C_OR,
   C_AND,
-  C_LOOP,
   C_MAYBE,
+  C_MAYB1,
 } tag_t;
 
 typedef struct __ast_t {
@@ -31,6 +33,9 @@ typedef struct __comb_t {
     /* children */
     vec(struct __comb_t*) children;
   };
+
+  /* define */
+  struct __comb_t** forward;
 } comb_t;
 
 void ast_dump(ast_t* ast);
@@ -49,7 +54,12 @@ comb_t* Comb(tag_t tag, size_t cnt, ...);
 #define P(s)      Match(s)
 #define O(arg...) Comb(C_OR, va_size(arg), arg)
 #define A(arg...) Comb(C_AND, va_size(arg), arg)
-#define L(arg...) Comb(C_LOOP, va_size(arg), arg)
+#define L(arg...) Comb(C_MAYB1, va_size(arg), arg)
 #define M(arg...) Comb(C_MAYBE, va_size(arg), arg)
 
 ast_t* parse(input_t* in, comb_t* comb);
+
+comb_t* __forward(comb_t** comb);
+#define forward(x)                                                                                 \
+  comb_t* x;                                                                                       \
+  x = __forward(&x)
