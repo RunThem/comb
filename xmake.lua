@@ -30,6 +30,7 @@ add_repositories('RunThem https://github.com/RunThem/My-xmake-repo')
 add_requires(
   -- RunThem repo
   'libu',
+  'tiny-regex-c',
 
   -- xrepo
   'mimalloc'
@@ -41,7 +42,7 @@ target('mpc', function()
   set_kind('binary')
   add_files('src/*.c')
 
-  add_packages('mimalloc', 'libu')
+  add_packages('mimalloc', 'libu', 'tiny-regex-c')
 end)
 
 target('fmt', function()
