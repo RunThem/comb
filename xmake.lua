@@ -1,4 +1,4 @@
-set_project('mpc')
+set_project('comb')
 
 set_xmakever('2.6.1')
 
@@ -38,7 +38,7 @@ add_requires(
 
 add_includedirs('$(projectdir)/src')
 
-target('mpc', function()
+target('comb', function()
   set_kind('binary')
   add_files('src/*.c')
 
