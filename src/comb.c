@@ -1,5 +1,4 @@
 #include "comb.h"
-
 #include "u/u.h"
 #include "u/vec.h"
 
@@ -209,7 +208,7 @@ comb_t* Comb(tag_t tag, size_t cnt, ...) {
   return c;
 }
 
-comb_t* __forward(comb_t** comb) {
+comb_t* __comb(comb_t** comb) {
   comb_t* c = u_talloc(sizeof(comb_t), comb_t*);
 
   c->tag     = C_COMB;

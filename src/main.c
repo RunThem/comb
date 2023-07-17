@@ -3,43 +3,40 @@
 #include "comb.h"
 #include "u/str.h"
 
-#include <u/vec.h>
+#include <re.h>
 
 int main(int argc, const char** argv) {
 
-  forward(factor);
-  forward(term);
-  forward(expr);
+  comb(factor);
+  comb(term);
+  comb(expr);
 
-  inf("factor(%p), expr(%p)", factor, expr);
-
-#if 1
   input_t in = {
-      .err   = false,
       .idx   = 0,
       .input = str_new("x+(x-x)*x-x"),
   };
 
-  /* FIX: expr == nullptr */
-  factor         = O(P("x"), A(P("("), expr, P(")")));
-  term           = A(factor, M(O(P("*"), P("/")), factor));
-  *expr->forward = A(term, M(O(P("+"), P("-")), term));
-
-#else
-  input_t in = {
-      .err   = false,
-      .idx   = 0,
-      .input = str_new("xxxyxx"),
-  };
-
-  expr = M(P("x"));
-#endif
+  let(factor) = O(P("x"), A(P("("), expr, P(")")));
+  let(term)   = A(factor, M(O(P("*"), P("/")), factor));
+  let(expr)   = A(term, M(O(P("+"), P("-")), term));
 
   // comb_dump(expr);
 
   auto ast = parse(&in, expr);
 
   ast_dump(ast);
+
+  re_t reg = nullptr;
+
+  reg = re_compile("^hello.*world");
+
+  int idx   = 0;
+  c_str str = "iefahello isdhgawig worldgei";
+  auto res  = re_matchp(reg, str, &idx);
+
+  inf("res(%d)", res);
+  inf("%d", idx);
+  inf("%c", str[idx]);
 
   return 0;
 }

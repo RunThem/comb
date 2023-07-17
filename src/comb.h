@@ -6,8 +6,6 @@
 typedef struct {
   str_t input;
   size_t idx;
-
-  bool err;
 } input_t;
 
 typedef enum {
@@ -59,7 +57,9 @@ comb_t* Comb(tag_t tag, size_t cnt, ...);
 
 ast_t* parse(input_t* in, comb_t* comb);
 
-comb_t* __forward(comb_t** comb);
-#define forward(x)                                                                                 \
+comb_t* __comb(comb_t** comb);
+#define comb(x)                                                                                    \
   comb_t* x;                                                                                       \
-  x = __forward(&x)
+  x = __comb(&x)
+
+#define let(x) (*(x->forward))
