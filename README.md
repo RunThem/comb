@@ -1,16 +1,16 @@
 <p align="center">
 <!--
-  <a href="https://github.com/RunThem/mpc/">
+  <a href="https://github.com/RunThem/comb/">
     <img src="images/logo.png" alt="Logo" width="80" height="80">
   </a>
 -->
 
-  <h3 align="center">mpc</h3>
-  <p align="center">快速开始你的项目!</p>
+  <h3 align="center">comb</h3>
+  <p align="center">一个简单的解析器组合子库!</p>
 </p>
 <br />
 
- 简单的C项目模板
+根据[`comb`](https://github.com/wbhart/comb) 实现的一个简单的解析器组合子库.
  
 ## 目录
 
@@ -32,14 +32,10 @@
 ###### **安装步骤**
 
 ```shell
-git clone https://github.com/RunThem/mpc.git ${your_repository}
-cd ${your_repository}
+git clone https://github.com/RunThem/comb.git
+cd comb
 
-bash -c 'sed -i "s/mpc/$(basename `pwd`)/g" README.md xmake.lua && git update-ref -d HEAD && git add . && git commit -m "first commit" && git remote remove origin'
-
-xmake f -m debug --toolchain=clang && xmake
-
-xmake lsp
+xmake f -m debug --toolchain=clang && xmake lsp && xmake -v
 ```
 
 ### 作者
@@ -57,3 +53,4 @@ xmake lsp
 - [sds](https://github.com/antirez/sds)
 - [mimalloc](https://github.com/microsoft/mimalloc)
 - [dbg-macro](https://github.com/eerimoq/dbg-macro)
+- [tiny-regex-c](https://github.com/kokke/tiny-regex-c)
