@@ -38,7 +38,7 @@ end
 
 --- Private repositories
 add_repositories('RunThem https://github.com/RunThem/My-xmake-repo')
-add_requires('libu', 'tiny-regex-c')
+add_requires('libu')
 add_requires('mimalloc')
 
 --- Project common header file path
@@ -48,5 +48,5 @@ target('comb', function()
   set_kind('binary')
   add_files('src/*.c')
 
-  add_packages('mimalloc', 'libu', 'tiny-regex-c')
+  add_packages('mimalloc', 'libu')
 end)

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <regex.h>
 #include <u/str.h>
 #include <u/vec.h>
 
@@ -10,6 +11,7 @@ typedef struct {
 
 typedef enum {
   C_MATCH,
+  C_REGEX,
   C_COMB,
   C_OR,
   C_AND,
@@ -28,6 +30,9 @@ typedef struct __comb_t {
     /* match */
     str_t match;
 
+    /* regex */
+    regex_t reg;
+
     /* children */
     vec(struct __comb_t*) children;
   };
@@ -39,7 +44,7 @@ typedef struct __comb_t {
 void ast_dump(ast_t* ast);
 void comb_dump(comb_t* comb);
 
-comb_t* Match(c_str match);
+comb_t* Match(tag_t tag, c_str match);
 comb_t* Comb(tag_t tag, size_t cnt, ...);
 
 /* clang-format off */
@@ -49,7 +54,8 @@ comb_t* Comb(tag_t tag, size_t cnt, ...);
 #define va_size(...) __va_size("ignore" __VA_OPT__(, ) __VA_ARGS__, 36, 35, 34, 33, 32, 31, 30, 29, 28, 27, 26, 25, 24, 23, 22, 21, 20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0)
 /* clang-format on */
 
-#define P(s)      Match(s)
+#define P(s)      Match(C_MATCH, s)
+#define R(s)      Match(C_REGEX, s)
 #define O(arg...) Comb(C_OR, va_size(arg), arg)
 #define A(arg...) Comb(C_AND, va_size(arg), arg)
 #define L(arg...) Comb(C_MAYB1, va_size(arg), arg)

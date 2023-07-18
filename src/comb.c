@@ -1,10 +1,9 @@
 #include "comb.h"
+#include "u/str.h"
 #include "u/u.h"
 #include "u/vec.h"
 
-#include <stdarg.h>
 #include <stdio.h>
-#include <string.h>
 
 ast_t* parse(input_t* in, comb_t* comb);
 
@@ -28,9 +27,9 @@ static void __ast_dump(int level, ast_t* ast) {
   u_ret_no_if(ast == nullptr);
 
   if (ast->children == nullptr) {
-    memset(space, ' ', sizeof(space));
-    space[level * 4] = '\0';
+    space[(level + 1) * 4] = '\0';
     printf("%s'%s'\n", space, ast->match->c_str);
+    space[(level + 1) * 4] = ' ';
   } else {
     vec_for(&ast->children, it) {
       __ast_dump(level + 1, *it);
@@ -79,6 +78,26 @@ static ast_t* comb_match(input_t* in, comb_t* comb) {
   in->idx += comb->match->len;
   ast        = ast_new();
   ast->match = str_new(comb->match->c_str);
+
+  return ast;
+}
+
+static ast_t* comb_regex(input_t* in, comb_t* comb) {
+  int res       = 0;
+  ast_t* ast    = nullptr;
+  regmatch_t st = {};
+
+  inf("in('%s')", &in->input->c_str[in->idx]);
+
+  res = regexec(&comb->reg, &in->input->c_str[in->idx], 1, &st, 0);
+  /* fix: res != 0, regex error */
+  u_ret_if(st.rm_eo == 0, nullptr);
+
+  inf("res(%d), so(%d), eo(%d)", res, st.rm_so, st.rm_eo);
+
+  ast        = ast_new();
+  ast->match = str_new(&in->input->c_str[in->idx], st.rm_eo);
+  in->idx += st.rm_eo;
 
   return ast;
 }
@@ -161,12 +180,14 @@ static ast_t* comb_maybe(input_t* in, comb_t* comb) {
 ast_t* parse(input_t* in, comb_t* comb) {
   u_ret_if(in->idx == in->input->len, nullptr);
 
-  printf("in('%s'), idx(%ld)\n", in->input->c_str, in->idx);
+  printf("in('%s'), idx(%ld)\n", &in->input->c_str[in->idx], in->idx);
   switch (comb->tag) {
     case C_COMB:
       return parse(in, *comb->forward);
     case C_MATCH:
       return comb_match(in, comb);
+    case C_REGEX:
+      return comb_regex(in, comb);
     case C_OR:
       return comb_or(in, comb);
     case C_AND:
@@ -181,11 +202,21 @@ ast_t* parse(input_t* in, comb_t* comb) {
   return nullptr;
 }
 
-comb_t* Match(c_str match) {
+comb_t* Match(tag_t tag, c_str match) {
+  str_t buf = nullptr;
   comb_t* c = u_talloc(sizeof(comb_t), comb_t*);
 
-  c->tag   = C_MATCH;
-  c->match = str_new(match);
+  if (tag == C_MATCH) {
+    c->tag   = C_MATCH;
+    c->match = str_new(match);
+  } else if (tag == C_REGEX) {
+    c->tag = C_REGEX;
+
+    buf = str_new_f("^%s", match);
+    regcomp(&c->reg, buf->c_str, REG_EXTENDED);
+
+    str_cleanup(&buf);
+  }
 
   return c;
 }
